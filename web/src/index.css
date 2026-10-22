@@ -1,0 +1,49 @@
+/* 색은 DB CI 컬러시스템을 따름 (https://www.dbhitek.com/kr/company/ci) */
+:root {
+  --db-green: #00854a;
+  --db-light-green: #4fb84f;
+  --db-red: #f15a22;
+  --db-blue: #0088cb;
+  --grad-green: linear-gradient(135deg, #8dc63f 0%, #009559 65%);
+  --grad-red: linear-gradient(135deg, #f47920 0%, #c9252c 65%);
+  --grad-blue: linear-gradient(135deg, #14b1e7 0%, #0061af 50%);
+
+  --bg: #f5f8f6;
+  --surface: #ffffff;
+  --text: #1f2a24;
+  --muted: #6b7a72;
+  --accent: var(--db-green);
+  --accent-soft: #e6f3ec;
+  --border: #dfe8e3;
+  --error: #c9252c;
+
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+/* 맨 위 세 가지 CI 색 띠 */
+body::before {
+  content: '';
+  display: block;
+  height: 6px;
+  background: linear-gradient(90deg, var(--db-red) 0 33.3%, var(--db-green) 33.3% 66.6%, var(--db-blue) 66.6% 100%);
+}
+
+input,
+textarea,
+button {
+  font: inherit;
+  color: inherit;
+}
