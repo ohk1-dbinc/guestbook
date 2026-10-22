@@ -1,0 +1,16 @@
+# DB 파일
+api/data/
+*.db
+*.sqlite3
+
+# 빌드 결과
+api/build/
+api/.gradle/
+web/dist/
+
+# 패키지
+node_modules/
+
+# 비밀값
+.env
+.env.*
