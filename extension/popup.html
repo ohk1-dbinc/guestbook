@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>송별·축하 방명록</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <h1>송별·축하 방명록</h1>
+      <a id="open-site" href="#" target="_blank" rel="noopener">웹에서 열기 ↗</a>
+    </header>
+
+    <form id="form" class="card form">
+      <div class="row">
+        <label>
+          <span>보내는 사람</span>
+          <input id="name" maxlength="40" placeholder="이름" required />
+        </label>
+        <label>
+          <span>받는 사람 <span class="optional">(선택)</span></span>
+          <input id="to" maxlength="40" placeholder="누구에게" />
+        </label>
+      </div>
+
+      <div class="emojis" id="emojis" role="group" aria-label="이모지 (선택)"></div>
+
+      <label>
+        <span>메시지</span>
+        <textarea id="message" maxlength="500" rows="3" placeholder="그동안 고마웠어요!" required></textarea>
+        <span class="counter" id="counter">0 / 500</span>
+      </label>
+
+      <p class="error" id="save-error" role="alert" hidden></p>
+      <button type="submit" class="submit" id="submit" disabled>메시지 남기기</button>
+    </form>
+
+    <section class="list" id="list" aria-live="polite">
+      <p class="status" id="status">불러오는 중…</p>
+    </section>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

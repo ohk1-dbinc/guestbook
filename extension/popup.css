@@ -1,0 +1,210 @@
+/* 색은 DB CI 컬러시스템을 따름 (웹 화면과 같음) */
+:root {
+  --db-green: #00854a;
+  --db-light-green: #4fb84f;
+  --db-red: #f15a22;
+  --db-blue: #0088cb;
+  --grad-green: linear-gradient(135deg, #8dc63f 0%, #009559 65%);
+  --bg: #f5f8f6;
+  --text: #1f2a24;
+  --muted: #6b7a72;
+  --border: #dfe8e3;
+  --accent-soft: #e6f3ec;
+  --error: #c9252c;
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* 팝업 크기: 너비 380px, 높이는 크롬 최대(600px)까지 */
+body {
+  width: 380px;
+  max-height: 600px;
+  margin: 0;
+  padding: 0 14px 14px;
+  background: var(--bg);
+  font-size: 13px;
+}
+
+body::before {
+  content: '';
+  display: block;
+  height: 4px;
+  margin: 0 -14px 10px;
+  background: linear-gradient(90deg, var(--db-red) 0 33.3%, var(--db-green) 33.3% 66.6%, var(--db-blue) 66.6% 100%);
+}
+
+input,
+textarea,
+button {
+  font: inherit;
+  color: inherit;
+}
+
+.hero {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--db-green);
+}
+
+.hero a {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.optional {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-weight: 400;
+}
+
+input:focus,
+textarea:focus {
+  outline: 2px solid var(--db-green);
+  outline-offset: 1px;
+}
+
+textarea {
+  resize: none;
+}
+
+.counter {
+  align-self: flex-end;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.emojis {
+  display: flex;
+  gap: 6px;
+}
+
+.emoji {
+  width: 34px;
+  height: 34px;
+  font-size: 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.emoji.selected {
+  border-color: var(--db-green);
+  background: var(--accent-soft);
+}
+
+.submit {
+  padding: 9px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--grad-green);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  margin: 0;
+  color: var(--error);
+}
+
+.status {
+  text-align: center;
+  color: var(--muted);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.entry {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  border-left: 4px solid var(--db-light-green);
+}
+
+.entry-emoji {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.entry-body {
+  min-width: 0;
+}
+
+.entry-meta {
+  margin: 0 0 2px;
+  overflow-wrap: anywhere;
+}
+
+.entry-meta strong {
+  color: var(--db-green);
+}
+
+.entry-message {
+  margin: 0 0 4px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.entry time {
+  font-size: 0.75rem;
+  color: var(--muted);
+}

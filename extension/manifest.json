@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "송별·축하 방명록",
+  "version": "0.1.0",
+  "description": "팀 송별·축하 방명록에 메시지를 남기고 바로 확인해요.",
+  "action": {
+    "default_title": "송별·축하 방명록",
+    "default_popup": "popup.html"
+  },
+  "host_permissions": ["https://guestbook-r189.vercel.app/*"]
+}
