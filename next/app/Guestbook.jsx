@@ -18,6 +18,115 @@ async function readError(response) {
   return `서버 오류가 났습니다. (${response.status})`
 }
 
+// VAPID 공개 키(base64url) → applicationServerKey용 바이트
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+  return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0))
+}
+
+// 서비스 워커 등록과 알림 구독 상태 관리
+// status: 'loading' | 'unsupported' | 'denied' | 'off' | 'on'
+function usePush() {
+  const [status, setStatus] = useState('loading')
+  const [busy, setBusy] = useState(false)
+  const [subscription, setSubscription] = useState(null)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+    if (!publicKey || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+      setStatus('unsupported')
+      return
+    }
+    navigator.serviceWorker
+      .register('/sw.js', { scope: '/', updateViaCache: 'none' })
+      .then((registration) => registration.pushManager.getSubscription())
+      .then((existing) => {
+        setSubscription(existing)
+        if (existing) setStatus('on')
+        else setStatus(Notification.permission === 'denied' ? 'denied' : 'off')
+      })
+      .catch(() => setStatus('unsupported'))
+  }, [])
+
+  async function send(method, sub) {
+    const response = await fetch('/api/push', {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sub),
+    })
+    if (!response.ok) throw new Error(await readError(response))
+  }
+
+  async function enable() {
+    setBusy(true)
+    setError('')
+    try {
+      const permission = await Notification.requestPermission()
+      if (permission !== 'granted') {
+        setStatus(permission === 'denied' ? 'denied' : 'off')
+        return
+      }
+      const registration = await navigator.serviceWorker.ready
+      const sub = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY),
+      })
+      await send('POST', sub)
+      setSubscription(sub)
+      setStatus('on')
+    } catch (e) {
+      setError(e.message || '알림을 켜지 못했습니다.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function disable() {
+    if (!subscription) return
+    setBusy(true)
+    setError('')
+    try {
+      await send('DELETE', subscription)
+      await subscription.unsubscribe()
+      setSubscription(null)
+      setStatus('off')
+    } catch (e) {
+      setError(e.message || '알림을 끄지 못했습니다.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return { status, busy, error, endpoint: subscription?.endpoint, enable, disable }
+}
+
+function PushToggle({ push }) {
+  if (push.status === 'loading' || push.status === 'unsupported') return null
+  return (
+    <div className="push">
+      {push.status === 'denied' ? (
+        <p className="push-note">알림이 차단되어 있어요. 브라우저 주소창의 사이트 설정에서 알림을 허용해 주세요.</p>
+      ) : (
+        <button
+          type="button"
+          className={push.status === 'on' ? 'push-button on' : 'push-button'}
+          onClick={push.status === 'on' ? push.disable : push.enable}
+          disabled={push.busy}
+        >
+          {push.busy ? '처리 중…' : push.status === 'on' ? '🔕 알림 끄기' : '🔔 새 메시지 알림 받기'}
+        </button>
+      )}
+      {push.error && (
+        <p className="error" role="alert">
+          {push.error}
+        </p>
+      )}
+    </div>
+  )
+}
+
 function formatTime(iso) {
   return new Date(iso).toLocaleString('ko-KR', {
     month: 'long',
@@ -34,6 +143,7 @@ export default function Guestbook() {
   const [saving, setSaving] = useState(false)
   const [listError, setListError] = useState('')
   const [saveError, setSaveError] = useState('')
+  const push = usePush()
 
   useEffect(() => {
     let ignore = false
@@ -71,9 +181,12 @@ export default function Guestbook() {
       const payload = { name: form.name.trim(), message: form.message.trim() }
       if (form.to.trim()) payload.to = form.to.trim()
       if (form.emoji) payload.emoji = form.emoji
+      const headers = { 'Content-Type': 'application/json' }
+      // 내 기기에는 내 메시지 알림을 보내지 않도록 구독 주소를 알려 줌
+      if (push.endpoint) headers['X-Push-Endpoint'] = push.endpoint
       const response = await fetch('/api/entries', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(payload),
       })
       if (!response.ok) throw new Error(await readError(response))
@@ -92,6 +205,7 @@ export default function Guestbook() {
       <header className="hero">
         <h1>송별·축하 방명록</h1>
         <p>고마운 마음, 축하하는 마음을 한마디씩 남겨 주세요.</p>
+        <PushToggle push={push} />
       </header>
 
       <form className="card form" onSubmit={handleSubmit}>

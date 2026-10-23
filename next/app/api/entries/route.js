@@ -1,5 +1,6 @@
-import { connection } from "next/server";
+import { after, connection } from "next/server";
 import { ApiError, MAX_BODY_BYTES, findLatest, insertEntry, parseEntry } from "@/lib/entries";
+import { notifyNewEntry } from "@/lib/push";
 
 function error(status, message) {
   return Response.json({ error: message }, { status });
@@ -26,8 +27,11 @@ export async function POST(request) {
     return error(413, "요청 본문이 너무 큽니다.");
   }
   try {
-    const entry = parseEntry(new Uint8Array(await request.arrayBuffer()));
-    return Response.json({ entry: await insertEntry(entry) }, { status: 201 });
+    const entry = await insertEntry(parseEntry(new Uint8Array(await request.arrayBuffer())));
+    // 응답을 보낸 뒤 알림 전송 (실패해도 저장은 성공)
+    const senderEndpoint = request.headers.get("x-push-endpoint");
+    after(() => notifyNewEntry(entry, senderEndpoint).catch((e) => console.error("알림 처리 실패", e)));
+    return Response.json({ entry }, { status: 201 });
   } catch (e) {
     if (e instanceof ApiError) return error(e.status, e.message);
     console.error("저장 실패", e);
